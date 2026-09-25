@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel Financeiro — Liberte</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,500;1,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#EFE6DC;--surface:#F7F1EA;--surface2:#E8DDD1;--border:rgba(76,20,22,.12);--border2:rgba(76,20,22,.28);--text:#2B1714;--muted:#8A7669;--accent:#B5532F;--bordo:#4C1416;--bordo2:#6E1E1E;
+--y2024:#B9A99A;--y2025:#C89A7C;--y2026:#6E1E1E;--green:#3E7D5A;--red:#B5532F;--blue:#4C1416}
+html{font-size:15px}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);padding:0 0 2rem;line-height:1.55}
+.header{background:var(--bordo);color:#F3E9E0;padding:2rem 2.2rem 1.7rem;display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.6rem;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;border:38px solid rgba(255,255,255,.04)}
+h1{font-family:'Poppins',sans-serif;font-weight:700;font-size:2rem;letter-spacing:-.02em;line-height:1.1}
+h1 em{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;color:#E39A78}
+.header p{font-family:'DM Mono',monospace;font-size:.66rem;color:rgba(243,233,224,.6);text-transform:uppercase;letter-spacing:.14em;margin-top:.5rem}
+.updated{font-family:'DM Mono',monospace;font-size:.66rem;color:rgba(243,233,224,.6);text-align:right;position:relative}
+.demo{margin:0 2.2rem 1.1rem;background:rgba(181,83,47,.08);border:1px solid rgba(181,83,47,.35);border-radius:10px;padding:.6rem .9rem;font-size:.76rem;color:#6E3A2A}
+.demo b{color:var(--accent)}
+.tabs{display:flex;gap:.5rem;margin:0 2.2rem 1.3rem;align-items:center;flex-wrap:wrap}
+.tab{font-family:'Poppins',sans-serif;font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;padding:.45rem 1.05rem;border-radius:100px;border:1.5px solid var(--border2);background:transparent;color:var(--bordo);cursor:pointer;transition:all .15s}
+.tab:hover{background:rgba(76,20,22,.06)}
+.tab.active{background:var(--bordo);border-color:var(--bordo);color:#F3E9E0}
+.sel{font-family:'DM Mono',monospace;font-size:.68rem;padding:.38rem .6rem;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface);color:var(--text)}
+.spacer{flex:1}
+#v-mes,#v-comp,#v-ano{padding:0 2.2rem}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:.9rem;margin-bottom:1rem}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.15rem;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--c,var(--accent))}
+.kpi label{display:block;font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.45rem}
+.kpi .v{font-family:'Playfair Display',serif;font-weight:600;font-size:1.6rem;line-height:1;letter-spacing:-.01em;color:var(--bordo)}
+.kpi .d{font-family:'DM Mono',monospace;font-size:.64rem;margin-top:.45rem;color:var(--muted)}
+.kpi .d b{font-weight:500;color:var(--text)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem}
+.ct{font-family:'Poppins',sans-serif;font-weight:600;font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;color:var(--bordo);margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.ct span{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;text-transform:none;letter-spacing:0;font-size:.82rem;color:var(--accent);background:none;padding:0}
+table{width:100%;border-collapse:collapse}
+th{font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);text-align:right;font-weight:400;padding:.4rem .5rem;border-bottom:1.5px solid var(--border2)}
+th:first-child,td:first-child{text-align:left}
+td{padding:.55rem .5rem;font-size:.78rem;text-align:right;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border)}
+td:first-child{font-family:'Poppins',sans-serif;font-weight:500}
+tr.sim td{color:var(--muted);font-weight:400}
+tr.hl td{background:rgba(76,20,22,.06)}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.delta{font-family:'DM Mono',monospace;font-size:.62rem;padding:.12rem .4rem;border-radius:100px;margin-left:.35rem}
+.delta.up{background:rgba(62,125,90,.14);color:var(--green)}.delta.dn{background:rgba(181,83,47,.14);color:var(--red)}
+.legend{display:flex;gap:1.1rem;margin-top:.8rem;font-family:'DM Mono',monospace;font-size:.64rem;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.35rem;vertical-align:-1px}
+.bar{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;font-size:.76rem}
+.bar .n{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.bar .t{flex:2;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.bar .t div{height:100%;border-radius:3px}
+.bar .v{font-family:'DM Mono',monospace;font-size:.7rem;min-width:70px;text-align:right}
+.matrix td.y{min-width:110px}
+.chk{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;cursor:pointer}
+.chk input{accent-color:var(--bordo)}
+.foot{margin:2rem 2.2rem 0;padding-top:1rem;border-top:1.5px solid var(--border2);display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.64rem;color:var(--muted)}
+.foot b{color:var(--accent);font-weight:400}
+.sim-tag{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--muted);border:1px dashed var(--border2);padding:0 .3rem;border-radius:3px;margin-left:.3rem}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}.header,.tabs,.demo,#v-mes,#v-comp,#v-ano,.foot{padding-left:1rem;padding-right:1rem;margin-left:0;margin-right:0}}
+</style></head><body>
+
+<div class="header">
+  <div><h1>Financeiro da <em>Liberte</em></h1><p>@liberte.solucoesempresariais · Conta Cora · Regime de caixa</p></div>
+  <div class="updated">Atualizado: 25/08/2026<br>Fonte: extratos Cora jan–jul/26</div>
+</div>
+
+<div class="demo"><b>Protótipo.</b> Jan–jul/26 e março/25 são dados reais dos extratos. Os demais meses de 2025 são <b>fictícios</b> só para mostrar as visões (marcados em cinza e com ~). Ao subir os extratos de 2025, tudo é substituído.</div>
+
+<div class="tabs">
+  <button class="tab active" data-v="mes">Mês a mês</button>
+  <button class="tab" data-v="comp">Comparativo</button>
+  <button class="tab" data-v="ano">Ano</button>
+  <span class="spacer"></span>
+  <span id="ctrl-mes"><select class="sel" id="selMes"></select> <select class="sel" id="selAnoMes"></select></span>
+  <span id="ctrl-comp" style="display:none">
+    <select class="sel" id="selGran"><option value="mes">Mês</option><option value="tri">Trimestre</option><option value="sem">Semestre</option><option value="ano">Ano</option></select>
+    <select class="sel" id="selMetrica"><option value="rec">Receita</option><option value="des">Despesa</option><option value="res">Resultado</option><option value="resReal">Resultado real</option></select>
+  </span>
+  <span id="ctrl-ano" style="display:none"><select class="sel" id="selAno"></select></span>
+</div>
+
+<!-- ===== MÊS ===== -->
+<div id="v-mes">
+  <div class="kpis" id="kpiMes"></div>
+  <div class="grid2">
+    <div class="card"><div class="ct">Resultado real <span>vs mesmo mês do ano anterior</span></div><div id="resultadoMes"></div></div>
+    <div class="card"><div class="ct">Despesas por categoria <span id="catMesTag"></span></div><div id="catMes"></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ct">Receitas por origem <span>top clientes</span></div><div id="cliMes"></div></div>
+    <div class="card"><div class="ct">Fluxo dos últimos 12 meses</div><div style="height:220px"><canvas id="chFluxo"></canvas></div>
+      <div class="legend"><span><i style="background:#4C1416"></i>Receita</span><span><i style="background:#C89A7C"></i>Despesa</span><span><i style="background:#B5532F"></i>Resultado real</span></div></div>
+  </div>
+</div>
+
+<!-- ===== COMPARATIVO ===== -->
+<div id="v-comp" style="display:none">
+  <div class="card" style="margin-bottom:1rem">
+    <div class="ct"><span id="compTitulo" style="background:none;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.1em;padding:0"></span>
+      <div style="display:flex;gap:.9rem"><label class="chk"><input type="checkbox" value="2024" checked>2024</label><label class="chk"><input type="checkbox" value="2025" checked>2025</label><label class="chk"><input type="checkbox" value="2026" checked>2026</label></div></div>
+    <div style="height:260px"><canvas id="chComp"></canvas></div>
+    <div class="legend" id="legComp"></div>
+  </div>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr">
+    <div class="card"><div class="ct">Matriz período × ano <span>Δ vs ano anterior</span></div><div id="matriz"></div></div>
+    <div class="card"><div class="ct">Categorias de despesa por ano <span id="catCompTag"></span></div><div style="height:340px"><canvas id="chCat"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ===== ANO ===== -->
+<div id="v-ano" style="display:none">
+  <div class="kpis" id="kpiAno"></div>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <div class="card"><div class="ct">Fluxo financeiro mensal</div><div id="fluxoAno"></div></div>
+    <div class="card"><div class="ct">Projeção de saldo <span>fim de cada mês</span></div><div style="height:260px"><canvas id="chSaldo"></canvas></div>
+      <div class="legend" style="margin-top:.7rem">Meses futuros (tracejados) projetados com a média do resultado real dos últimos 3 meses.</div></div>
+  </div>
+  <div class="card"><div class="ct">Resultado real no ano</div><div style="height:220px"><canvas id="chResAno"></canvas></div></div>
+</div>
+
+<div class="foot"><span>Dados: planilha Lançamentos · classificados pela skill de leitura de extrato</span><span>Gerado por <b>N8N + Claude</b> · toda segunda</span></div>
+
+<script>
+var DADOS = {"2026": {"1": {"rec": 45021.25, "des": 40366.09, "recNO": 0, "desNO": 9413.93, "saldo": 15333.59, "cats": {"Equipe / freelancers": 20923.0, "Retirada sócia": 5000.0, "Parcerias / repasse": 3630.0, "Impostos": 3419.57, "Devoluções": 2377.42, "Saúde / benefícios": 2036.51, "Cartão de crédito": 1903.03, "Contabilidade": 407.0, "Ocupação / utilidades": 294.67, "Software / assinaturas": 199.89, "Marketing / mídia": 175.0}, "clientes": {"CAMILA LUNARD NI": 7020.0, "CAMILA MESQUITA": 3247.0, "Cs Treinamentos E C": 3000.0, "LN ASSESSORIA IM": 2957.73, "Ellen Susana Faúndes": 2900.0, "D.ODD LTDA": 2700.0, "Carol Razuk": 2012.67, "CATHARINA ISABEL": 2000.0}, "lanc": 68, "real": true}, "2": {"rec": 44622.47, "des": 44168.18, "recNO": 0, "desNO": 7743.71, "saldo": 15787.88, "cats": {"Equipe / freelancers": 16202.42, "Parcerias / repasse": 6400.0, "Retirada sócia": 5600.0, "Cartão de crédito": 5153.26, "Impostos": 4254.79, "Fornecedores de produto": 3220.0, "Saúde / benefícios": 2143.71, "Contabilidade": 507.0, "Ocupação / utilidades": 487.11, "Software / assinaturas": 199.89}, "clientes": {"CAMILA LUNARD NI": 4172.19, "D.ODD LTDA": 3198.5, "CAMILA MESQUITA": 3072.0, "MAIS AMOR ASSES": 3000.0, "Recebimentos cartão (Getnet)": 2900.0, "Carol Razuk": 2012.67, "VITA VET CLINIC": 1906.74, "LN ASSESSORIA IM": 1890.0}, "lanc": 74, "real": true}, "3": {"rec": 41673.45, "des": 46790.07, "recNO": 0, "desNO": 8870.08, "saldo": 10334.24, "cats": {"Equipe / freelancers": 18200.8, "Parcerias / repasse": 5830.0, "Retirada sócia": 5340.0, "Impostos": 4494.51, "Cartão de crédito": 4369.86, "Fornecedores de produto": 3570.12, "Saúde / benefícios": 2030.08, "Devoluções": 1500.0, "Contabilidade": 507.0, "Ocupação / utilidades": 387.81, "Marketing / mídia": 360.0, "Software / assinaturas": 199.89}, "clientes": {"CAMILA LUNARD NI": 4500.0, "D.ODD LTDA": 3198.5, "CAMILA MESQUITA": 3072.0, "Cs Treinamentos E C": 3000.0, "Carol Razuk": 2012.67, "VITA VET CLINIC": 1906.74, "LN ASSESSORIA IM": 1890.0, "ALBINO KRESCHE E": 1750.0}, "lanc": 79, "real": true}, "4": {"rec": 44664.36, "des": 46229.89, "recNO": 0, "desNO": 8697.23, "saldo": 10588.71, "cats": {"Equipe / freelancers": 16153.32, "Retirada sócia": 6200.0, "Cartão de crédito": 5289.17, "Parcerias / repasse": 4530.0, "Impostos": 4435.2, "Fornecedores de produto": 3000.0, "Fornecedores / serviços": 2202.14, "Saúde / benefícios": 2047.23, "Marketing / mídia": 800.0, "Contabilidade": 507.0, "Devoluções": 450.0, "Ocupação / utilidades": 371.04, "Software / assinaturas": 244.79}, "clientes": {"CAMILA LUNARD NI": 4500.0, "Recebimentos cartão (Getnet)": 3612.42, "CAMILA MESQUITA": 2748.5, "Carol Razuk": 2012.67, "UGREEN TREINAME": 2000.0, "CLELIA CASSIA BRIT": 2000.0, "VITA VET CLINIC": 1906.74, "LN ASSESSORIA IM": 1890.0}, "lanc": 79, "real": true}, "5": {"rec": 38535.4, "des": 43759.97, "recNO": 0, "desNO": 7378.64, "saldo": 5364.14, "cats": {"Equipe / freelancers": 17518.66, "Retirada sócia": 5370.0, "Parcerias / repasse": 5130.0, "Cartão de crédito": 4759.02, "Impostos": 4405.03, "Fornecedores / serviços": 2202.14, "Saúde / benefícios": 2008.64, "Marketing / mídia": 1213.17, "Contabilidade": 507.0, "Ocupação / utilidades": 401.52, "Software / assinaturas": 244.79}, "clientes": {"CAMILA LUNARD NI": 4500.0, "ARQEXPRESS RJ SE": 3500.0, "CAMILA MESQUITA": 2250.0, "VITA VET CLINIC": 2000.0, "La Cle Jewel": 2000.0, "UGREEN TREINAME": 2000.0, "LN ASSESSORIA IM": 1890.0, "Carol Razuk": 1811.4}, "lanc": 73, "real": true}, "6": {"rec": 60800.83, "des": 45828.63, "recNO": 0, "desNO": 9761.34, "saldo": 20336.34, "cats": {"Equipe / freelancers": 14041.66, "Parcerias / repasse": 6830.0, "Retirada sócia": 5890.0, "Cartão de crédito": 5106.6, "Impostos": 4408.52, "Fornecedores / serviços": 2202.14, "Saúde / benefícios": 2071.34, "Devoluções": 1800.0, "Marketing / mídia": 1500.0, "Fornecedores de produto": 1330.9, "Ocupação / utilidades": 402.68, "Software / assinaturas": 244.79}, "clientes": {"Recebimentos cartão (Getnet)": 13816.56, "CAMILA LUNARD NI": 4500.0, "RENATA LEMOS SER": 3600.0, "45.948.764 RENATA": 3500.0, "CAMILA MESQUITA": 2500.0, "CLINICA DE ODONT": 2300.0, "D.ODD LTDA": 2233.33, "Carol Razuk": 2012.67}, "lanc": 92, "real": true}, "7": {"rec": 47024.19, "des": 42741.34, "recNO": 0, "desNO": 7920.11, "saldo": 25302.19, "cats": {"Equipe / freelancers": 14156.13, "Impostos": 5880.59, "Retirada sócia": 5770.0, "Parcerias / repasse": 5380.0, "Cartão de crédito": 4562.83, "Fornecedores / serviços": 2202.14, "Saúde / benefícios": 2150.11, "Marketing / mídia": 1200.0, "Fornecedores de produto": 750.0, "Ocupação / utilidades": 357.66, "Software / assinaturas": 264.88, "Contabilidade": 67.0}, "clientes": {"CAMILA LUNARD NI": 5200.0, "Recebimentos cartão (Getnet)": 4770.55, "D.ODD LTDA": 3800.0, "CAMILA MESQUITA": 2500.0, "CLINICA DE ODONT": 2300.0, "Carol Razuk": 2012.67, "VITA VET CLINIC": 2000.0, "CLELIA CASSIA BRIT": 2000.0}, "lanc": 75, "real": true}}, "2025": {"1": {"rec": 35951.4, "des": 29997.81, "recNO": 0, "desNO": 7840.79, "saldo": 10953.59, "cats": {"Equipe / freelancers": 14901.63, "Retirada sócia": 7840.79, "Impostos": 2679.36, "Parcerias / repasse": 1759.15, "Ocupação / utilidades": 683.09, "Cartão de crédito": 582.78, "Consultoria": 564.03, "Software / assinaturas": 497.21, "Contabilidade": 268.5, "Marketing / mídia": 221.27}, "clientes": {}, "lanc": 0, "real": false}, "2": {"rec": 30648.82, "des": 31556.22, "recNO": 0, "desNO": 6676.48, "saldo": 10046.19, "cats": {"Equipe / freelancers": 15246.52, "Retirada sócia": 6676.48, "Impostos": 3954.39, "Parcerias / repasse": 2458.43, "Ocupação / utilidades": 1058.42, "Cartão de crédito": 711.64, "Consultoria": 478.12, "Software / assinaturas": 344.81, "Contabilidade": 415.16, "Marketing / mídia": 212.26}, "clientes": {}, "lanc": 0, "real": false}, "3": {"rec": 36649.51, "des": 31184.23, "recNO": 3050.0, "desNO": 9180.0, "saldo": 12004.62, "cats": {"Equipe / freelancers": 13620.48, "Retirada sócia": 9180.0, "Impostos": 3057.95, "Parcerias / repasse": 1916.67, "Ocupação / utilidades": 966.06, "Cartão de crédito": 663.52, "Consultoria": 600.0, "Software / assinaturas": 484.9, "Contabilidade": 407.0, "Marketing / mídia": 287.65}, "clientes": {"CAMILA LUNARD NI": 4450.0, "BANCO RENDIMEN": 3050.0, "LN ASSESSORIA IM": 2890.0, "DODD Ltda": 2298.5, "Thainara Lemos Diogo": 2100.0, "Clinica Odontologica": 2000.0, "CAMILA MESQUITA": 1950.0, "CAROLINA DE CAST": 1900.0}, "lanc": 73, "real": true}, "4": {"rec": 32108.02, "des": 28015.56, "recNO": 0, "desNO": 9151.27, "saldo": 16097.08, "cats": {"Equipe / freelancers": 9965.21, "Retirada sócia": 9151.27, "Impostos": 3004.63, "Parcerias / repasse": 2354.17, "Ocupação / utilidades": 995.64, "Cartão de crédito": 732.98, "Consultoria": 611.27, "Software / assinaturas": 542.23, "Contabilidade": 404.08, "Marketing / mídia": 254.08}, "clientes": {}, "lanc": 0, "real": false}, "5": {"rec": 43945.05, "des": 32716.57, "recNO": 0, "desNO": 9848.58, "saldo": 27325.56, "cats": {"Equipe / freelancers": 15644.63, "Retirada sócia": 9848.58, "Impostos": 2593.66, "Parcerias / repasse": 1531.75, "Ocupação / utilidades": 804.88, "Cartão de crédito": 469.72, "Consultoria": 663.78, "Software / assinaturas": 434.9, "Contabilidade": 468.97, "Marketing / mídia": 255.7}, "clientes": {}, "lanc": 0, "real": false}, "6": {"rec": 43364.32, "des": 31791.14, "recNO": 0, "desNO": 9139.05, "saldo": 38898.74, "cats": {"Equipe / freelancers": 11499.02, "Retirada sócia": 9139.05, "Impostos": 4593.8, "Parcerias / repasse": 2268.95, "Ocupação / utilidades": 1500.23, "Cartão de crédito": 750.64, "Consultoria": 538.0, "Software / assinaturas": 629.95, "Contabilidade": 572.63, "Marketing / mídia": 298.87}, "clientes": {}, "lanc": 0, "real": false}, "7": {"rec": 30597.12, "des": 28580.88, "recNO": 0, "desNO": 8652.62, "saldo": 40914.98, "cats": {"Equipe / freelancers": 14212.27, "Retirada sócia": 8652.62, "Impostos": 1923.79, "Parcerias / repasse": 1326.32, "Ocupação / utilidades": 599.74, "Cartão de crédito": 398.55, "Consultoria": 576.99, "Software / assinaturas": 319.23, "Contabilidade": 344.01, "Marketing / mídia": 227.37}, "clientes": {}, "lanc": 0, "real": false}, "8": {"rec": 32115.0, "des": 31071.31, "recNO": 0, "desNO": 10993.3, "saldo": 41958.67, "cats": {"Equipe / freelancers": 11691.23, "Retirada sócia": 10993.3, "Impostos": 2595.56, "Parcerias / repasse": 2012.59, "Ocupação / utilidades": 881.56, "Cartão de crédito": 630.47, "Consultoria": 848.38, "Software / assinaturas": 631.9, "Contabilidade": 395.97, "Marketing / mídia": 390.35}, "clientes": {}, "lanc": 0, "real": false}, "9": {"rec": 32408.58, "des": 28965.63, "recNO": 0, "desNO": 8398.94, "saldo": 45401.62, "cats": {"Equipe / freelancers": 13926.15, "Retirada sócia": 8398.94, "Impostos": 1960.06, "Parcerias / repasse": 2090.51, "Ocupação / utilidades": 674.4, "Cartão de crédito": 478.32, "Consultoria": 588.67, "Software / assinaturas": 366.89, "Contabilidade": 301.23, "Marketing / mídia": 180.45}, "clientes": {}, "lanc": 0, "real": false}, "10": {"rec": 30640.71, "des": 30141.02, "recNO": 0, "desNO": 9912.93, "saldo": 45901.31, "cats": {"Equipe / freelancers": 11727.42, "Retirada sócia": 9912.93, "Impostos": 2873.3, "Parcerias / repasse": 1896.35, "Ocupação / utilidades": 1254.34, "Cartão de crédito": 668.85, "Consultoria": 638.12, "Software / assinaturas": 602.17, "Contabilidade": 335.47, "Marketing / mídia": 232.06}, "clientes": {}, "lanc": 0, "real": false}, "11": {"rec": 42636.92, "des": 31607.1, "recNO": 0, "desNO": 8298.27, "saldo": 56931.13, "cats": {"Equipe / freelancers": 12854.11, "Retirada sócia": 8298.27, "Impostos": 3884.27, "Parcerias / repasse": 2691.3, "Ocupação / utilidades": 877.64, "Cartão de crédito": 935.98, "Consultoria": 819.22, "Software / assinaturas": 572.02, "Contabilidade": 430.74, "Marketing / mídia": 243.55}, "clientes": {}, "lanc": 0, "real": false}, "12": {"rec": 29886.89, "des": 32510.69, "recNO": 0, "desNO": 11218.6, "saldo": 54307.33, "cats": {"Equipe / freelancers": 12498.47, "Retirada sócia": 11218.6, "Impostos": 2843.14, "Parcerias / repasse": 2491.44, "Ocupação / utilidades": 1112.39, "Cartão de crédito": 632.7, "Consultoria": 525.9, "Software / assinaturas": 597.58, "Contabilidade": 328.39, "Marketing / mídia": 262.07}, "clientes": {}, "lanc": 0, "real": false}}};
+var MES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+var MA = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+var COR = {2024:'#B9A99A',2025:'#C89A7C',2026:'#6E1E1E'};
+var ANOS = Object.keys(DADOS).map(Number).sort();
+var fmt = v => 'R$ ' + (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+var fmtK = v => Math.abs(v)>=1000 ? (v<0?'-':'')+'R$ '+(Math.abs(v)/1000).toFixed(1)+'k' : fmt(v);
+var get = (a,m) => (DADOS[a]||{})[m];
+var res = d => d ? d.rec - d.des : null;
+var resReal = d => d ? (d.rec - d.recNO) - (d.des - d.desNO) : null;
+var delta = (a,b,bad) => (b==null||b==0||a==null) ? '' : ' <span class="delta '+(((a-b)>=0)!==!!bad?'up':'dn')+'">'+((a-b)>=0?'+':'')+((a-b)/Math.abs(b)*100).toFixed(0)+'%</span>';
+var chart = {};
+function mk(id, cfg){ if(chart[id]) chart[id].destroy(); chart[id] = new Chart(document.getElementById(id), cfg); }
+var ax = {ticks:{color:'#8A7669',font:{size:9,family:'DM Mono'}},grid:{color:'rgba(76,20,22,.07)'}};
+var axK = Object.assign({}, ax, {ticks:Object.assign({},ax.ticks,{callback:v=>'R$'+(v/1000).toFixed(0)+'k'})});
+var simTag = d => d && !d.real ? '<span class="sim-tag">~</span>' : '';
+
+// ---------- VISÃO MÊS ----------
+function renderMes(){
+  var m = +selMes.value, a = +selAnoMes.value, d = get(a,m), ant = get(a-1,m), prev = get(m==1?a-1:a, m==1?12:m-1);
+  if(!d){ kpiMes.innerHTML='<div class="kpi"><label>Sem dados</label><div class="v">—</div></div>'; return; }
+  var kp = [
+    ['Receita', d.rec, ant && ant.rec, '#4C1416'],
+    ['Despesa', d.des, ant && ant.des, '#C89A7C', true],
+    ['Resultado', res(d), ant && res(ant), res(d)>=0?'#3E7D5A':'#B5532F'],
+    ['Resultado real', resReal(d), ant && resReal(ant), resReal(d)>=0?'#3E7D5A':'#B5532F'],
+    ['Saldo em conta', d.saldo, ant && ant.saldo, '#B5532F'],
+  ];
+  kpiMes.innerHTML = kp.map(k => '<div class="kpi" style="--c:'+k[3]+'"><label>'+k[0]+simTag(d)+'</label><div class="v" style="color:'+(k[1]<0?'var(--red)':'var(--text)')+'">'+fmtK(k[1])+'</div><div class="d">'+MA[m-1]+'/'+(a-1)+': <b>'+(k[2]!=null?fmtK(k[2]):'—')+'</b>'+delta(k[1],k[2],k[4])+'</div></div>').join('');
+  // resultado real box
+  resultadoMes.innerHTML = '<table><tr><th></th><th>'+MA[m-1]+'/'+(a-1)+'</th><th>'+MA[m-1]+'/'+a+'</th></tr>'
+   + [['Total receita','rec'],['− não operacional','recNO'],['Total despesa','des'],['− não operacional','desNO']].map(r=>'<tr><td>'+r[0]+'</td><td>'+(ant?fmt(ant[r[1]]):'—')+'</td><td>'+fmt(d[r[1]])+'</td></tr>').join('')
+   + '<tr class="hl"><td style="font-family:DM Serif Display,serif;font-size:.9rem">Resultado real</td><td class="'+(ant&&resReal(ant)>=0?'pos':'neg')+'">'+(ant?fmt(resReal(ant)):'—')+'</td><td class="'+(resReal(d)>=0?'pos':'neg')+'" style="font-weight:500">'+fmt(resReal(d))+delta(resReal(d),ant&&resReal(ant))+'</td></tr></table>';
+  // categorias vs ano anterior
+  var cats = Object.keys(d.cats); var mx = Math.max(...Object.values(d.cats));
+  catMesTag.textContent = 'vs '+(a-1);
+  catMes.innerHTML = cats.map(c=>{ var v=d.cats[c], va=ant&&ant.cats[c];
+    return '<div class="bar"><span class="n">'+c+'</span><div class="t"><div style="width:'+(v/mx*100)+'%;background:'+COR[a]+'"></div></div><span class="v">'+fmtK(v)+'</span><span class="v" style="color:var(--muted);min-width:60px">'+(va!=null?fmtK(va):'—')+'</span><span style="min-width:52px;text-align:right">'+delta(v,va)+'</span></div>'; }).join('');
+  var cl = Object.entries(d.clientes); var mc = cl[0]?cl[0][1]:1;
+  cliMes.innerHTML = cl.length ? cl.map(e=>'<div class="bar"><span class="n">'+e[0]+'</span><div class="t"><div style="width:'+(e[1]/mc*100)+'%;background:#4C1416"></div></div><span class="v">'+fmtK(e[1])+'</span><span class="v" style="color:var(--muted);min-width:44px">'+(e[1]/d.rec*100).toFixed(0)+'%</span></div>').join('')
+    : '<p style="color:var(--muted);font-size:.78rem">Mês simulado — sem detalhe por cliente.</p>';
+  // fluxo 12 meses até o mês selecionado
+  var lab=[],R=[],D=[],RR=[];
+  for(var i=11;i>=0;i--){ var mm=m-i, aa=a; while(mm<1){mm+=12;aa--;} var x=get(aa,mm); lab.push(MA[mm-1]+'/'+String(aa).slice(2)); R.push(x?x.rec:null); D.push(x?x.des:null); RR.push(x?resReal(x):null); }
+  mk('chFluxo',{data:{labels:lab,datasets:[{type:'bar',data:R,backgroundColor:'rgba(76,20,22,.75)',borderRadius:3},{type:'bar',data:D,backgroundColor:'rgba(200,154,124,.85)',borderRadius:3},{type:'line',data:RR,borderColor:'#B5532F',pointBackgroundColor:'#B5532F',pointRadius:3,tension:.3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}},scales:{x:ax,y:axK}}});
+}
+
+// ---------- COMPARATIVO ----------
+function periodos(g){ return g=='mes'?MA.map((x,i)=>({l:x,ms:[i+1]})) : g=='tri'?[1,2,3,4].map(t=>({l:'T'+t,ms:[t*3-2,t*3-1,t*3]})) : g=='sem'?[{l:'S1',ms:[1,2,3,4,5,6]},{l:'S2',ms:[7,8,9,10,11,12]}] : [{l:'Ano',ms:[1,2,3,4,5,6,7,8,9,10,11,12]}]; }
+function agg(a,ms,met){ var t=0,n=0,sim=false; ms.forEach(m=>{var d=get(a,m); if(!d)return; n++; if(!d.real)sim=true; t+= met=='rec'?d.rec:met=='des'?d.des:met=='res'?res(d):resReal(d);}); return n?{v:t,n:n,sim:sim,parcial:n<ms.length}:null; }
+function renderComp(){
+  var g=selGran.value, met=selMetrica.value, anos=[...document.querySelectorAll('.chk input:checked')].map(i=>+i.value);
+  var P=periodos(g); var nome={rec:'Receita',des:'Despesa',res:'Resultado',resReal:'Resultado real'}[met];
+  compTitulo.textContent = nome+' por '+{mes:'mês',tri:'trimestre',sem:'semestre',ano:'ano'}[g];
+  mk('chComp',{type:g=='mes'?'line':'bar',data:{labels:P.map(p=>p.l),datasets:anos.map(a=>({label:String(a),data:P.map(p=>{var r=agg(a,p.ms,met);return r?r.v:null;}),borderColor:COR[a],backgroundColor:g=='mes'?COR[a]:COR[a]+'cc',pointRadius:3,tension:.3,borderRadius:3,spanGaps:false}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},scales:{x:ax,y:axK}}});
+  legComp.innerHTML = anos.map(a=>'<span><i style="background:'+COR[a]+'"></i>'+a+'</span>').join('');
+  var h='<table class="matrix"><tr><th>Período</th>'+anos.map(a=>'<th>'+a+'</th>').join('')+'</tr>';
+  P.forEach(p=>{ h+='<tr><td>'+p.l+'</td>'; anos.forEach((a,i)=>{ var r=agg(a,p.ms,met), pr=i>0?agg(anos[i-1],p.ms,met):null;
+    h+='<td class="y'+(r&&r.sim?' sim':'')+'">'+(r?'<span class="'+(r.v<0?'neg':'')+'">'+fmtK(r.v)+'</span>'+(r.parcial?'<span class="sim-tag">parcial</span>':'')+(r.sim?'<span class="sim-tag">~</span>':'')+delta(r.v,pr&&pr.v,met=='des'):'<span style="color:var(--muted)">—</span>')+'</td>'; }); h+='</tr>'; });
+  matriz.innerHTML=h+'</table>';
+  // categorias por ano (mesmo período: soma dos meses do gran selecionado -> usa ano todo disponível)
+  var comuns=[1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>anos.every(a=>get(a,m)));
+  if(!comuns.length) comuns=[1,2,3,4,5,6,7,8,9,10,11,12];
+  var somaCat=(a,c)=>comuns.reduce((s,m)=>{var d=get(a,m);return s+(d&&d.cats[c]||0);},0);
+  var cats={}; anos.forEach(a=>{ comuns.forEach(m=>{var d=get(a,m); if(d) Object.entries(d.cats).forEach(e=>{cats[e[0]]=(cats[e[0]]||0)+e[1];});}); });
+  var top=Object.entries(cats).sort((x,y)=>y[1]-x[1]).slice(0,9).map(e=>e[0]);
+  catCompTag.textContent='meses comuns: '+MA[comuns[0]-1]+'–'+MA[comuns[comuns.length-1]-1];
+  mk('chCat',{type:'bar',data:{labels:top,datasets:anos.map(a=>({label:String(a),data:top.map(c=>somaCat(a,c)),backgroundColor:COR[a]+'cc',borderRadius:3}))},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.x)}}},scales:{x:axK,y:ax}}});
+}
+
+// ---------- ANO ----------
+function renderAno(){
+  var a=+selAno.value, ms=Object.keys(DADOS[a]).map(Number).sort((x,y)=>x-y), antFull=DADOS[a-1]||{}, ant={}; ms.forEach(m=>{if(antFull[m])ant[m]=antFull[m];});
+  var S=(o,k)=>Object.values(o).reduce((s,d)=>s+(k=='res'?res(d):k=='rr'?resReal(d):d[k]),0);
+  var kp=[['Receita',S(DADOS[a],'rec'),S(ant,'rec'),'#4C1416'],['Despesa',S(DADOS[a],'des'),S(ant,'des'),'#C89A7C',true],['Resultado',S(DADOS[a],'res'),S(ant,'res'),'#B5532F'],['Resultado real',S(DADOS[a],'rr'),S(ant,'rr'),'#B5532F'],['Meses com dados',ms.length,Object.keys(antFull).length,'#8A7669']];
+  kpiAno.innerHTML=kp.map((k,i)=>'<div class="kpi" style="--c:'+k[3]+'"><label>'+k[0]+'</label><div class="v" style="color:'+(k[1]<0?'var(--red)':'var(--text)')+'">'+(i==4?k[1]:fmtK(k[1]))+'</div><div class="d">'+(a-1)+': <b>'+(i==4?k[2]:fmtK(k[2]))+'</b>'+(i<4?delta(k[1],k[2],k[4]):'')+'</div></div>').join('');
+  fluxoAno.innerHTML='<table><tr><th>Mês/Ano</th><th>Receita</th><th>Despesa</th><th>Saldo mensal</th><th>Resultado real</th></tr>'+ms.map(m=>{var d=get(a,m);return '<tr class="'+(d.real?'':'sim')+'"><td>'+(m)+'. '+MES[m-1]+'/'+String(a).slice(2)+simTag(d)+'</td><td>'+fmt(d.rec)+'</td><td>'+fmt(d.des)+'</td><td class="'+(res(d)>=0?'pos':'neg')+'">'+fmt(res(d))+'</td><td class="'+(resReal(d)>=0?'pos':'neg')+'">'+fmt(resReal(d))+'</td></tr>';}).join('')+'</table>';
+  // saldo + projeção
+  var lab=MA.map((x,i)=>x+'/'+String(a).slice(2)), saldo=[], proj=[], last=ms[ms.length-1], media=ms.slice(-3).reduce((s,m)=>s+resReal(get(a,m)),0)/Math.min(3,ms.length), cur=get(a,last).saldo;
+  for(var m=1;m<=12;m++){ var d=get(a,m); if(d){saldo.push(d.saldo);proj.push(null);} else if(m>last){cur+=media;saldo.push(null);proj.push(Math.round(cur));} else {saldo.push(null);proj.push(null);} }
+  mk('chSaldo',{type:'bar',data:{labels:lab,datasets:[{data:saldo,backgroundColor:COR[a]+'cc',borderRadius:3},{data:proj,backgroundColor:'rgba(76,20,22,.06)',borderColor:COR[a]+'99',borderWidth:1,borderDash:[4,3],borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.datasetIndex?'Projetado: ':'Saldo: ')+fmt(c.parsed.y)}}},scales:{x:ax,y:axK}}});
+  mk('chResAno',{type:'line',data:{labels:lab,datasets:[{data:MA.map((x,i)=>{var d=get(a,i+1);return d?resReal(d):null;}),borderColor:COR[a],backgroundColor:COR[a]+'22',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:COR[a]},{data:MA.map((x,i)=>{var d=get(a-1,i+1);return d?resReal(d):null;}),borderColor:COR[a-1]||'#B9A99A',borderDash:[4,3],pointRadius:0,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.datasetIndex?(a-1):a)+': '+fmt(c.parsed.y)}}},scales:{x:ax,y:axK}}});
+}
+
+// ---------- init ----------
+selMes.innerHTML=MES.map((x,i)=>'<option value="'+(i+1)+'">'+x+'</option>').join(''); selMes.value=3;
+selAnoMes.innerHTML=ANOS.map(a=>'<option>'+a+'</option>').join(''); selAnoMes.value=2026;
+selAno.innerHTML=ANOS.map(a=>'<option>'+a+'</option>').join(''); selAno.value=2026;
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{ document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t==b));
+  ['mes','comp','ano'].forEach(v=>{document.getElementById('v-'+v).style.display=b.dataset.v==v?'':'none';document.getElementById('ctrl-'+v).style.display=b.dataset.v==v?'':'none';});
+  ({mes:renderMes,comp:renderComp,ano:renderAno})[b.dataset.v](); });
+[selMes,selAnoMes].forEach(s=>s.onchange=renderMes); [selGran,selMetrica].forEach(s=>s.onchange=renderComp); document.querySelectorAll('.chk input').forEach(i=>i.onchange=renderComp); selAno.onchange=renderAno;
+renderMes();
+</script></body></html>
